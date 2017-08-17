@@ -6,8 +6,8 @@
  * @copyright Copyright (c), Ryan Hellyer
  * @license http://www.gnu.org/licenses/gpl.html GPL
  * @author Ryan Hellyer <ryanhellyer@gmail.com>
- * @package Hellish Simplicity
- * @since Hellish Simplicity 1.5
+ * @package Undycar
+ * @since Undycar 1.0
  */
 class SRC_Theme_Setup {
 
@@ -36,7 +36,7 @@ class SRC_Theme_Setup {
 		add_action( 'after_setup_theme',  array( $this, 'theme_setup' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'stylesheets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'script' ) );
-		add_action( 'after_switch_theme', array( $this, 'theme_activation' ) );
+		add_action( 'wp',                 array( $this, 'force_404' ) );
 
 		// Add filters
 		add_filter('private_title_format', array( $this, 'remove_private_title_format' ) );
@@ -73,7 +73,7 @@ class SRC_Theme_Setup {
 	 */
 	public function stylesheets() {
 		if ( ! is_admin() ) {
-			wp_enqueue_style( self::THEME_NAME, get_stylesheet_directory_uri() . '/css/style.css', array(), self::VERSION_NUMBER );
+			wp_enqueue_style( self::THEME_NAME, get_stylesheet_directory_uri() . '/css/style.min.css', array(), self::VERSION_NUMBER );
 			wp_enqueue_style( 'google-open-sans', 'https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800', array(), self::VERSION_NUMBER );
 		}
 	}
@@ -113,16 +113,14 @@ class SRC_Theme_Setup {
 		return '%s';
 	}
 
-	/**
-	 ** Tasks to run on theme activation.
-	 */
-	public function theme_activation() {
-
-		add_option( 'src_featured_page', 1 );
-		add_option( 'src_registration_thanks_page', 1 );
-		add_option( 'gertrudes_id', 'unknown', null, false );
-
+	public function force_404() {
+		global $wp_query;
+		if ( is_archive() ) {
+			status_header( 404 );
+			nocache_headers();
+			include( get_query_template( '404' ) );
+		die();
 	}
-
+}
 }
 new SRC_Theme_Setup;

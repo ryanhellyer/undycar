@@ -16,7 +16,7 @@ class SRC_Register extends SRC_Core {
 	 * Add methods to appropriate hooks and filters.
 	 */
 	public function __construct() {
-$this->convert_iracing_users_to_json();
+
 		// Add action hooks
 		add_action( 'init',                array( $this, 'init' ) );
 		add_shortcode( 'src-register',     array( $this, 'register_shortcode' ) );
@@ -63,11 +63,12 @@ $this->convert_iracing_users_to_json();
 				$message_text = __( 'You already have an account ;) You can login with it if you like.', 'src' );
 			}
 
-			if ( ! defined( 'SRC_USERNAME_EXISTS' ) || defined( 'SRC_USERNAME_EXISTS' ) ) {
-// Get username from email address
+			// If username exists, but email does, then stick display name into form and hide the email field
+			if ( ! defined( 'SRC_USERNAME_EXISTS' ) || defined( 'SRC_EMAIL_EXISTS' ) ) {
 				$user = get_user_by( 'email', $email );
-				print_r( $user );
 				$message_text = __( 'You already have an account ;) You can login with it if you like.', 'src' );
+				$display_name = $user->display_name;
+				define( 'SRC_USERNAME_EXISTS', true );
 			}
 
 		}
@@ -84,7 +85,7 @@ $this->convert_iracing_users_to_json();
 
 		echo '
 
-	<input name="src-name" type="text" value="' . esc_attr( $username ) . '" placeholder="iRacing name" required />';
+	<input name="src-name" type="text" value="' . esc_attr( $display_name ) . '" placeholder="iRacing name" required />';
 
 		if ( ! defined( 'SRC_USERNAME_EXISTS' ) ) {
 			echo '
@@ -138,7 +139,7 @@ $this->convert_iracing_users_to_json();
 			}
 
 			// Check if iRacing member exists
-			if ( ! $this->iracing_member_exists( $display_name ) ) {
+			if ( ! $member_info = $this->iracing_member_info( $display_name ) ) {
 				define( 'SRC_IRACING_MEMBER_DOES_NOT_EXIST', true );
 				return;
 			}
@@ -161,6 +162,8 @@ $this->convert_iracing_users_to_json();
 				'display_name' => $display_name,
 				'user_pass'    => $password,
 			);
+print_r( $member_info );
+die;
 			$user_id = wp_insert_user( $user_data ) ;
 			if ( ! is_wp_error( $user_id ) ) {
 				$this->attempt_user_login( $user_id, $username, $email, $password );
@@ -288,14 +291,24 @@ If not, Check Road_driver_stats.csv and Oval_driver_stats.csv file to see if the
 
 	/**
 	 * Does the name exist within iRacing?
+	 * If they do return their info.
 	 *
 	 * @param  string  $display_name  Name of member
-	 * @return bool    true if member exists in iRacing, otherwise false
+	 * @return array|bool   array if member exists in iRacing, otherwise false
 	 */
-	public function iracing_member_exists( $display_name ) {
-		// XXXXXXXXXXXXXXXXXXXXXXXXXxx    NEED TO ACTUALLY CHECK IF THEY EXIST!!!!!!!!!!!!!!!
-//return false;
-		return true;
+	public function iracing_member_info( $display_name ) {
+		$dir = wp_upload_dir();
+
+		$stats = file_get_contents( $dir['basedir'] . '/iracing-members.json' );
+		$stats = json_decode( $stats, true );
+
+		// If user exists in iRacing, then return their stats, otherwise return false
+		if ( isset( $stats[$display_name] ) ) {
+			return $stats[$display_name];
+		} else {
+			return false;
+		}
+
 	}
 
 }

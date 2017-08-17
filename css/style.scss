@@ -362,6 +362,7 @@ a img.aligncenter {
 	background-size: cover;
 	text-align: center;
 
+	body.error404 &,
 	body.single &,
 	body.page & {
 		height: 300px;
@@ -629,6 +630,7 @@ td span.tick-mark:before {
 			padding: 40px 30px 0 30px;
 			text-transform: uppercase;
 			font-size: 1.4rem;
+			line-height: 1.6rem;
 			font-weight: 600;
 			color: #fff;		
 		}
@@ -818,6 +820,7 @@ li {
 }
 
 p {
+	line-height: 2.4rem;
 	margin: 10px 0 30px 0;
 }
 
@@ -858,6 +861,107 @@ select {
 
 img {
 	max-width: 100%;
+}
+
+/* =Comments
+-------------------------------------------------------------- */
+
+#comments {
+	margin-top: 60px;
+	border-top: 1px solid #ddd;
+
+	.comment-notes {
+		font-style: italic;
+	}
+
+	form p {
+		margin: 0;
+		font-weight: normal;
+	}
+
+}
+
+ol.commentlist {
+
+	#main & {
+		li {
+			list-style: none;
+			margin-left: 0;
+		}
+	}
+
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li.trackback,
+	li.pingback,
+	li.comment {
+		list-style: none;
+		background: #fafafa;
+		border: 1px solid #eee;
+		margin: 0 0 1.5em 0;
+		padding: 0;
+		font-size: 1rem;
+		color: #999;
+	}
+
+	li.trackback ul,
+	li.pingback ul,
+	li.comment ul {
+		margin: 0 1.5em 1.5em 1.5em;
+		padding: 0;
+	}
+
+	li.trackback .comment-body,
+	li.pingback .comment-body,
+	li.comment .comment-body {
+		padding: 1.5em;
+	}
+
+	li.comment li.comment {
+		font-size: 1.2rem;
+		background: #f6f6f6;
+		margin: 1.5em 0 0 0;
+	}
+
+	li.comment li.comment li.comment {
+		background: #f3f3f3;
+	}
+
+	cite {
+		font-style: normal;
+	}
+
+	img.avatar {
+		float: right;
+		border: 1px solid #eee;
+		margin: 0 0 1.5em 1.5em;
+	}
+
+	.comment-reply-link {
+		background: #eee;
+		border: 1px solid #eee;
+		font-size: 1rem;
+		padding: 0.4em 0.8em;
+		color: #333;
+	}
+
+	.comment-reply-link:hover {
+		background: $red;
+		color: #fff;
+		text-decoration: none;
+	}
+
+}
+
+.comment-author,
+.comment-meta {
+	line-height: 1.5em;
+}
+
+.comment-meta {
+	font-size: 1rem;
 }
 
 /* =Links
@@ -936,6 +1040,7 @@ input[type=submit],
 		color: #777;
 		font-family: $paragraph_font;
 		font-size: 0.8rem;
+		line-height: 1rem;
 		margin: 20px 0;
 	}
 
@@ -1082,37 +1187,6 @@ input[type=submit],
 			//display: none;
 		}
 
-	}
-
-	/* Forum */
-	.bbp-meta,
-	.bbp-reply-author,
-	.bbp-reply-content {
-		float: none;
-		width: 100%;
-		text-align: left;
-
-		br {
-			display: none;
-		}
-
-	}
-
-	.bbp-reply-header {
-		margin-top: 20px;
-	}
-
-	.bbp-reply-author img,
-	.bbp-reply-signature {
-		display: none;
-	}
-
-	.bbp-admin-links {
-		float: right;
-	}
-
-	#bbpress-wrapper h1 {
-		margin-bottom: 0;
 	}
 
 	/* Site footer */
