@@ -37,6 +37,7 @@ class SRC_Theme_Setup {
 		add_action( 'wp_enqueue_scripts', array( $this, 'stylesheets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'script' ) );
 		add_action( 'wp',                 array( $this, 'force_404' ) );
+		add_shortcode( 'src-news',        'src_news' );
 
 		// Add filters
 		add_filter('private_title_format', array( $this, 'remove_private_title_format' ) );

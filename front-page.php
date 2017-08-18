@@ -16,31 +16,9 @@ get_header();
 		<h2>Latest news</h2>
 	</header>
 
-<?php
-// Load main loop
-query_posts( array( 'posts_per_page' => 4 ) );
-if ( have_posts() ) {
+<?php echo src_news( 4 ); ?>
 
-	// Start of the Loop
-	while ( have_posts() ) {
-		the_post();
-
-		?>
-
-		<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-			<a href="<?php the_permalink(); ?>">
-				<img src="<?php echo esc_url( get_the_post_thumbnail_url() ); ?>" />
-				<date><?php echo get_the_date( get_option( 'date_format' ) ); ?></date>
-				<p><?php the_title(); ?></p>
-			</a>
-		</article><?php
-	}
-
-}
-
-?>
-
-		<a href="#" onclick="alert('Link does not work yet!')" class="highlighted-link">See more news</a>
+		<a href="<?php echo esc_url( home_url() . '/news/' ); ?>" class="highlighted-link">See more news</a>
 
 </section><!-- #latest-news -->
 
