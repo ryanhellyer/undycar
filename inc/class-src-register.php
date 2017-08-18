@@ -32,6 +32,11 @@ class SRC_Register extends SRC_Core {
 	 */
 	public function register_shortcode( $args ) {
 
+		// Don't show shortcode when logged in and on front page (form serves no purpose there then)
+		if ( is_user_logged_in() && is_front_page() ) {
+			return;
+		}
+
 		$url = '';
 		if ( isset( $args['url'] ) ) {
 			$url = $args['url'];
@@ -55,7 +60,9 @@ class SRC_Register extends SRC_Core {
 			$password = $_POST['src-password'];
 		}
 
-		if ( defined( 'SRC_IRACING_MEMBER_DOES_NOT_EXIST' ) ) {
+		if ( defined( 'SRC_LOGIN_ERROR' ) ) {
+			$message_text = __( 'We detected that you were already a member, so tried logging you in and something went wrong.', 'src' );
+		} else if ( defined( 'SRC_IRACING_MEMBER_DOES_NOT_EXIST' ) ) {
 			$message_text = __( 'The name you specified does not appear to exist within iRacing. Perhaps you entered your name incorrectly?', 'src' );
 		} else if ( defined( 'SRC_USERNAME_EXISTS' ) || defined( 'SRC_EMAIL_EXISTS' ) ) {
 
@@ -131,7 +138,7 @@ class SRC_Register extends SRC_Core {
 			// Sanitize inputs
 			$username     = sanitize_user(  $_POST['src-name'] );
 			$email        = sanitize_email( $_POST['src-email'] );
-			$display_name = sanitize_title( $_POST['src-name'] );
+			$display_name = esc_html( $_POST['src-name'] );
 			if ( isset( $_POST['src-password'] ) ) {
 				$password = $_POST['src-password'];
 			} else {
@@ -162,19 +169,36 @@ class SRC_Register extends SRC_Core {
 				'display_name' => $display_name,
 				'user_pass'    => $password,
 			);
-print_r( $member_info );
-die;
 			$user_id = wp_insert_user( $user_data ) ;
+
+			// If no error, then add meta keys and log the person in
 			if ( ! is_wp_error( $user_id ) ) {
+
+				// Add some meta keys
+				$meta_keys = array(
+					'location',
+					'oval_avg_inc',
+					'oval_license',
+					'oval_irating',
+					'road_avg_inc',
+					'road_license',
+					'road_irating',
+				);
+				foreach ( $meta_keys as $meta_key ) {
+					update_user_meta(
+						$user_id,
+						esc_html( $meta_key ),
+						esc_html( $member_info[$meta_key] )
+					);
+				}
+
+				// Log the user in
 				$this->attempt_user_login( $user_id, $username, $email, $password );
+			} else {
+				define( 'SRC_LOGIN_ERROR', true );
 			}
 
 		}
-
-/*
-If not, Check Road_driver_stats.csv and Oval_driver_stats.csv file to see if they exist 
-	... wp_insert_user()
-*/
 
 	}
 
