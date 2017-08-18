@@ -42,6 +42,7 @@ require( 'inc/class-src-tracks.php' );
 require( 'inc/class-src-seasons.php' );
 require( 'inc/class-src-events.php' );
 require( 'inc/class-src-register.php' );
+require( 'inc/class-src-members.php' );
 
 require( 'inc/functions.php' );
 
@@ -52,3 +53,4 @@ new SRC_Tracks();
 new SRC_Seasons();
 new SRC_Events();
 new SRC_Register();
+new SRC_Members();

@@ -136,7 +136,7 @@ class SRC_Register extends SRC_Core {
 		if ( isset( $_POST['src-name'] ) || isset( $_POST['src-email'] ) ) {
 
 			// Sanitize inputs
-			$username     = sanitize_user(  $_POST['src-name'] );
+			$username     = sanitize_title( sanitize_user(  $_POST['src-name'] ) );
 			$email        = sanitize_email( $_POST['src-email'] );
 			$display_name = esc_html( $_POST['src-name'] );
 			if ( isset( $_POST['src-password'] ) ) {
@@ -168,6 +168,7 @@ class SRC_Register extends SRC_Core {
 				'user_login'   => $username,
 				'display_name' => $display_name,
 				'user_pass'    => $password,
+				'user_email'   => $email,
 			);
 			$user_id = wp_insert_user( $user_data ) ;
 
@@ -183,6 +184,7 @@ class SRC_Register extends SRC_Core {
 					'road_avg_inc',
 					'road_license',
 					'road_irating',
+					'custid',
 				);
 				foreach ( $meta_keys as $meta_key ) {
 					update_user_meta(

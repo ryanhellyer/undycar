@@ -58,7 +58,12 @@ $args = array(
 	'fields'                 => 'ids',
 ) ;
 
-if ( is_404() ) {
+if ( defined( 'SRC_MEMBERS_TEMPLATE' ) ) {
+	global $display_name;
+	$title = $display_name;
+	$content = '';
+	$image_url = get_template_directory_uri() . '/images/cars/404-page.jpg';
+} else if ( is_404() ) {
 	$title = '404 error';
 	$content = '';
 	$image_url = get_template_directory_uri() . '/images/cars/404-page.jpg';

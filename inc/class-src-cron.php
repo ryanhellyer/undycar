@@ -73,6 +73,10 @@ class SRC_Cron extends SRC_Core {
 
 				// Creating individual drivers data array
 				$data = array();
+				
+				//if ( isset( $values[1] ) ) {
+				//	$data['custid'] = $values[1];
+				//}
 				if ( isset( $values[2] ) ) {
 					$data['location'] = $values[2];
 				}
