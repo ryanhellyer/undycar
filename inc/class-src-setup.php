@@ -32,16 +32,26 @@ class SRC_Theme_Setup {
 	public function __construct() {
 
 		// Add action hooks
+		add_action( 'after_switch_theme', array( $this, 'set_options' ) );
 		add_action( 'init',               array( $this, 'init' ) );
 		add_action( 'after_setup_theme',  array( $this, 'theme_setup' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'stylesheets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'script' ) );
 		add_action( 'wp',                 array( $this, 'force_404' ) );
+
+		// Add shortcodes
 		add_shortcode( 'src-news',        'src_news' );
 
 		// Add filters
 		add_filter('private_title_format', array( $this, 'remove_private_title_format' ) );
 
+	}
+
+	/**
+	 * Set options.
+	 */
+	public function set_options() {
+		add_option( 'medium_crop', '1' );
 	}
 
 	/**
@@ -66,6 +76,9 @@ class SRC_Theme_Setup {
 			'before_title'  => '<h3>',
 			'after_title'   => '</h3>',
 		) );
+
+		add_image_size( 'src-logo', 300, 150, true );
+		add_image_size( 'src-four', 480, 240, true );
 
 	}
 

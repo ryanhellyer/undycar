@@ -101,8 +101,12 @@ if ( defined( 'SRC_MEMBERS_TEMPLATE' ) ) {
 	}
 
 }
+wp_reset_query();
 
-			?>
+$image_url = apply_filters( 'src_featured_image_url', $image_url );
+$title     = apply_filters( 'src_featured_title', $title );
+
+?>
 
 <section id="featured-news" style="background-image: url(<?php echo esc_url( $image_url ); ?>">
 	<div class="text">

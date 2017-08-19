@@ -263,7 +263,7 @@ address {
 
 	.gallery-item {
 		float: left;
-		margin: 1%;
+		margin: 0.5%;
 	}
 
 	img {
@@ -358,6 +358,7 @@ a img.aligncenter {
 	position: relative;
 	width: 100%;
 	height: 550px;
+	margin-top: 70px;
 	background-position: center 0;
 	background-size: cover;
 	text-align: center;
@@ -369,6 +370,7 @@ a img.aligncenter {
 
 		h1 {
 			font-size: 5rem;
+			line-height: 5rem;
 		}
 
 	}
@@ -513,12 +515,21 @@ a img.aligncenter {
 		text-align: center;
 		color: #bbb;
 
-		div {
+		a {
+			display: block;
 			padding: 20px 0;
 			border-left: 1px solid #333;
+			color: #fff;
+			opacity: 0.9;
+
+			&:hover {
+				text-decoration: none;
+				opacity: 1;
+			}
+
 		}
 
-		&.post-1 div {
+		&.post-1 a {
 			border-left: none;
 		}
 
@@ -746,7 +757,7 @@ td span.tick-mark:before {
 	background: #efefef;
 	border-left: 6px solid #aaa;
 	padding: 40px;
-	margin: 0 0 60px 0;
+	margin: 0 0 60px 40px;
 
 	h3 {
 		color: #000;
@@ -767,6 +778,11 @@ td span.tick-mark:before {
 		margin: 0 0 0 25px;
 		padding: 5px 0;
 		font-size: 1rem;
+	}
+
+	p {
+		font-size: 1rem;
+		line-height: 1.5rem;
 	}
 
 }
