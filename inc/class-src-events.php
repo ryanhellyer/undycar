@@ -27,19 +27,25 @@ class SRC_Events extends SRC_Core {
 		add_filter( 'the_content',            array( $this, 'add_extra_content' ) );
 		add_filter( 'src_featured_image_url', array( $this, 'filter_featured_image_url' ) );
 		add_filter( 'src_featured_title',     array( $this, 'filtered_featured_title' ) );
+		add_filter( 'the_content',            array( $this, 'add_results' ), 9 );
+
+		// iRacing results uploader
+		add_action( 'add_meta_boxes', array( $this, 'results_upload_metabox' ) );
+		add_action( 'save_post',      array( $this, 'results_upload_save' ), 10, 2 );
+		add_action( 'post_edit_form_tag', array( $this, 'update_form_enctype' ) );
 
 	}
 
 	/**
 	 * When on event, use tracks featured image.
-	 *
+	 *c
 	 * @string  string  $image_url  The featured image URL
 	 * @return  string  The modified image URL
 	 */
 	public function filter_featured_image_url( $image_url ) {
 
 		if ( 'event' === get_post_type() ) {
-			$image_url = get_the_post_thumbnail_url( $this->event['current_round']['track'], 'full' );
+			$image_url = get_the_post_thumbnail_url( $this->event['current_round']['track'], 'src-featured' );
 		}
 
 		return $image_url;
@@ -214,7 +220,7 @@ class SRC_Events extends SRC_Core {
 			while ( $query->have_posts() ) {
 				$query->the_post();
 
-				$date  = get_post_meta( get_the_ID(), 'event_date', true );
+				$date  = get_post_meta( get_the_ID(), 'date', true );
 				$track = get_post_meta( get_the_ID(), 'track', true );
 
 				$events[$date] = array(
@@ -267,7 +273,11 @@ class SRC_Events extends SRC_Core {
 
 				// Get next round
 				if ( $key < $number_of_rounds_in_season ) {
-					$next_round = $new_events[$key + 1];
+					if ( isset( $new_events[$key + 1] ) ) {
+						$next_round = $new_events[$key + 1];
+					} else {
+						$next_round = false;
+					}
 				} else {
 					$next_round = false;
 				}
@@ -346,11 +356,16 @@ class SRC_Events extends SRC_Core {
 
 		$html = '
 		<div id="sidebar">
+';
 
+		if ( isset( $track_logo_image_url ) ) {
+			$html .= '
 			<a href="' . esc_url( $track_url ) . '">
 				<img style="width:100%;" src="' . esc_url( $track_logo_image_url ) . '" />
-			</a>
+			</a>';
+		}
 
+		$html .= '
 			<p>
 				<strong>' . esc_html( $date ) . '</strong>
 			</p>';
@@ -362,8 +377,12 @@ class SRC_Events extends SRC_Core {
 			if ( '' !== $time ) {
 
 				$extra_session_info = '';
+				$length = '';
 				if ( 'Qualifying' === $name ) {
-					$length = $this->qualifying_formats()[get_post_meta( get_the_ID(), 'qualifying_format', true )];
+					$qualf = get_post_meta( get_the_ID(), 'qualifying_format', true );
+					if ( '' !== $qualf ) {
+						$length = $this->qualifying_formats()[$qualf];
+					}
 				} else if ( 'Practice' === $name ) {
 					$length = get_post_meta( get_the_ID(), 'practise_length', true );
 				} else {
@@ -377,7 +396,11 @@ class SRC_Events extends SRC_Core {
 
 				}
 
-				$html .= '<strong>' . esc_html( $desc ) . '</strong><br />Start time: ' . esc_html( $time ) . ' GMT<br />Length: ' . esc_html( $length ) . '<br />' . $extra_session_info;
+				$html .= '<strong>' . esc_html( $desc ) . '</strong><br />Start time: ' . esc_html( $time ) . ' GMT';
+				if ( '' !== $length ) {
+					$html .= '<br />Length: ' . esc_html( $length );
+				}
+				$html .= '<br />' . $extra_session_info;
 			}
 			$html .= '</p>';
 		}
@@ -430,7 +453,7 @@ class SRC_Events extends SRC_Core {
 					esc_html( get_permalink( $this->event['season_id'] ) ),
 				 	esc_html( get_the_title( $season_id ) ),
 					esc_html( $date ),
-					esc_html( get_post_meta( get_the_ID(), 'race_length', true ) ),
+					esc_html( get_post_meta( $this->event['current_round']['track'], 'track_length', true ) ) . ' km',
 					esc_url( $track_url ),
 					esc_html( $this->event['current_round']['track_name'] ),
 					esc_html( $this->event['current_round']['track_type'] ),
@@ -461,18 +484,225 @@ class SRC_Events extends SRC_Core {
 
 
 		// Next/Previous race navigation buttons
+		$content .= '<div id="next-prev-buttons">';
 		if ( isset( $this->event['previous_round'] ) && false !==  $this->event['previous_round'] ) {
 			$url = get_permalink( $this->event['previous_round']['id'] );
-			$content .= '<a href="' . $url . '" style="clear:both;" class="button alignleft">&laquo; Last race</a>';
+			$content .= '<a href="' . esc_url( $url ) . '" class="button alignleft">&laquo; ' . esc_html__( 'Last race', 'src' ) . '</a>';
 		}
 
 		if ( isset( $this->event['next_round'] ) && false !== $this->event['next_round'] ) {
 			$url = get_permalink( $this->event['next_round']['id'] );
-			$content .= '<a href="' . $url . '" class="button alignright">Next race &raquo;</a>';
+			$content .= '<a href="' . esc_url( $url ) . '" class="button alignright">' . esc_html__( 'Next race', 'src' ) . '&raquo;</a>';
 		}
+		$content .= '</div>';
 
 		return $content;
 
+	}
+
+	/**
+	 * Add results upload metabox.
+	 */
+	public function results_upload_metabox() {
+
+		add_meta_box(
+			'iracing-results-uploader', // ID
+			__( 'Upload iRacing results', 'src' ), // Title
+			array(
+				$this,
+				'results_upload_metabox_html', // Callback to method to display HTML
+			),
+			array( 'event', 'post' ), // Post type
+			'side', // Context, choose between 'normal', 'advanced', or 'side'
+			'high'  // Position, choose between 'high', 'core', 'default' or 'low'
+		);
+
+	}
+
+	/**
+	 * Results upload HTML.
+	 */
+	public function results_upload_metabox_html() {
+		echo '
+		<p>
+			<input type="file" name="result-file" />
+			<input type="hidden" id="result-nonce" name="result-nonce" value="' . esc_attr( wp_create_nonce( __FILE__ ) ) . '">
+		</p>
+		<p>
+			' . print_r(
+					get_post_meta( get_the_ID(), json_decode( '_results' ), true ),
+					true
+				) . '
+
+		</p>';
+	}
+
+	/**
+	 * Save results upload save.
+	 *
+	 * @param  int     $post_id  The post ID
+	 * @param  object  $post     The post object
+	 */
+	public function results_upload_save( $post_id, $post ) {
+
+
+		// Only save if correct post data sent
+		if ( isset( $_FILES['result-file']['tmp_name'] ) ) {
+
+			// Do nonce security check
+			if ( ! wp_verify_nonce( $_POST['result-nonce'], __FILE__ ) ) {
+				return;
+			}
+
+			// Get the file and split it into rows
+			$temp_file =  $_FILES['result-file']['tmp_name'];
+			$csv = file_get_contents( $temp_file );
+			$rows = explode( "\n", $csv );
+
+
+			$column_labels = $rows[3];
+
+			unset( $rows[0] );
+			unset( $rows[1] );
+			unset( $rows[2] );
+			unset( $rows[3] );
+
+			$columns_to_keep = array(
+				7 => 'name',
+				8 => 'start_pos',
+				9 => 'car_no',
+				11 => 'out',
+				12 => 'interval',
+				13 => 'laps_led',
+				14 => 'qual_time',
+				15 => 'avg_lap_time',
+				16 => 'fastest_lap_time',
+				17 => 'fastest_lap',
+				18 => 'laps-completed',
+				19 => 'incidents',
+			);
+
+			$results = array();
+			foreach ( $rows as $key => $row ) {
+				$row = str_replace( '"', '', $row );
+
+				$driver_result = array();
+				$row_array = explode( ',', $row );
+				foreach ( $row_array as $column_number => $cell ) {
+
+					if ( isset( $columns_to_keep[$column_number] ) ) {
+
+						$column_name = $columns_to_keep[$column_number];
+						$results[ $row_array[0] ][$column_name] = utf8_encode( $cell );
+
+					}
+
+				}
+
+			}
+
+			$results = json_encode( $results );
+			update_post_meta( $post_id, '_results', $results );
+		}
+
+	}
+
+	/**
+	 * Get columns to keep in results.
+	 *
+	 * @param  bool  $original_key  true if keeping original keys
+	 * @return  array  The columns to be kept
+	 */
+	public function get_columns_to_keep( $keep_keys = false ) {
+		if ( false === $keep_keys ) {
+			$count = 0;
+			foreach ( $columns_to_keep as $key => $value ) {
+				$new_columns_to_keep[$count] = $value;
+				$count++;
+			}
+			return $new_columns_to_keep;
+		}
+
+		return $columns_to_keep;
+	}
+
+	/**
+	 * Update the form enctype.
+	 */
+	public function update_form_enctype() {
+
+		if ( 'event' === get_post_type() ) {
+			echo ' enctype="multipart/form-data"';
+		}
+
+	}
+
+	/**
+	 * Add results to events pages.
+	 *
+	 * @param  string  $content  The page content
+	 * @return string  The modified page content
+	 */
+	public function add_results( $content ) {
+		$html = '';
+
+		$results = get_post_meta( get_the_ID(), '_results', true );		
+
+		if ( '' === $results ) {
+			return $content;
+		}
+
+		$results = json_decode( $results, true );
+		if ( empty( $results ) ) {
+			return $content;
+		}
+
+
+		$html .= '<h3>' . esc_html__( 'Results table', 'src' ) . '</h3>';
+		$html .= '<table>';
+
+		$html .= '<thead><tr>';
+
+
+		$columns_to_keep = array(
+			'Name',
+			'Start',
+			'Car',
+			'Out',
+			'Interval',
+			'Laps led',
+			'Qual',
+			'Avg lap',
+			'Fastest lap',
+			'fastest lap',
+			'laps compl',
+			'Inc',
+		);
+
+		$html .= '<th>' . esc_html__( 'Pos', 'src' ) . '</th>';			
+		foreach ( $columns_to_keep as $key => $label ) {
+			$html .= '<th>' . esc_html( $label ) . '</th>';			
+		}
+
+		$html .= '</thead>';
+		$html .= '<tbody>';
+
+		foreach ( $results as $key => $result ) {
+			$html .= '<tr>';
+			$html .= '<td>' . esc_html( $key ) . '</td>';
+
+			foreach ( $result as $k => $cell ) {
+				$html .= '<td>' . esc_html( $cell ) . '</td>';
+			}
+
+			$html .= '</tr>';
+		}
+
+		$html .= '</tbody>';
+
+		$html .= '</table>';
+
+		return $content . $html;
 	}
 
 }

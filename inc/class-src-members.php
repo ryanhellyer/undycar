@@ -15,9 +15,8 @@ class SRC_Members extends SRC_Core {
 	 * Class constructor.
 	 */
 	public function __construct() {
-		add_action( 'init',             array( $this, 'rewrites' ) );
 		add_action( 'init',             array( $this, 'save' ) );
-		add_filter( 'template_include', array( $this, 'member_template' ), 99 );
+		add_filter( 'init', array( $this, 'member_template' ), 99 );
 	}
 
 	public function save() {
@@ -34,13 +33,6 @@ class SRC_Members extends SRC_Core {
 			wp_die( '<strong>Error:</strong> Form could not be processed due to a nonce error. You should never have seen this error. Please contact an admin and let them know this occurred and what you were doing when it happened.' );
 		}
 
-	}
-
-	/**
-	 * Add rewrite rules.
-	 */
-	public function rewrites() {
-		add_rewrite_rule( 'member/([^/]+)/?$', 'index.php?member=$matches[1]', 'top' );
 	}
 
 	/**
@@ -76,8 +68,9 @@ class SRC_Members extends SRC_Core {
 			global $wp_query;
 			$wp_query->is_404 = false;
 
-			$new_template = locate_template( array( 'member.php' ) );
-			return $new_template;
+			require( get_template_directory() . '/member.php' );exit;
+			//$new_template = locate_template( array( 'member.php' ) );
+			//return $new_template;
 		}
 
 		return $template;

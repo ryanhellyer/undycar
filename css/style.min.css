@@ -255,9 +255,9 @@ a img.aligncenter {
   background-position: center 0;
   background-size: cover;
   text-align: center; }
-  body.error404 #featured-news, body.single #featured-news, body.page #featured-news {
+  body.error404 #featured-news, body.single #featured-news, body.archive #featured-news, body.blog #featured-news, body.page #featured-news {
     height: 300px; }
-    body.error404 #featured-news h1, body.single #featured-news h1, body.page #featured-news h1 {
+    body.error404 #featured-news h1, body.single #featured-news h1, body.archive #featured-news h1, body.blog #featured-news h1, body.page #featured-news h1 {
       font-size: 5rem;
       line-height: 5rem; }
   #featured-news .text {
@@ -721,6 +721,12 @@ input[type=submit],
   text-decoration: none; }
   .highlighted-link:hover {
     text-decoration: underline; }
+
+#next-prev-buttons {
+  margin-top: 60px;
+  float: left;
+  width: 100%;
+  clear: both; }
 
 /* =Site footer
 -------------------------------------------------------------- */

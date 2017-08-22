@@ -8,15 +8,43 @@
 
 get_header();
 
-
 ?>
 
 <section id="latest-news">
 	<header>
 		<h2>Latest news</h2>
-	</header>
+	</header><?php
 
-	<?php echo src_news( 4 ); ?>
+	// Load main loop
+	$news_query = new WP_Query( array(
+		'post_type'      => 'post',
+		'post_status'    => 'publish',
+		'posts_per_page' => 4,
+		'no_found_rows'  => true,
+		'update_post_meta_cache' => false,
+		'update_post_term_cache' => false,
+	) );
+
+	if ( $news_query->have_posts() ) {
+
+		while ( $news_query->have_posts() ) {
+			$news_query->the_post();
+
+			echo '
+
+			<article id="' . esc_attr( 'post-' . get_the_ID() ) . '">
+				<a href="' . esc_attr( get_the_permalink( get_the_ID() ) ) . '">
+					<img src="' . esc_url( get_the_post_thumbnail_url( get_the_ID(), 'src-three' ) ) . '" />
+					<date>' . get_the_date( get_option( 'date_format' ) ) . '</date>
+					<p>' . esc_html( get_the_title( get_the_ID() ) ) . '</p>
+				</a>
+			</article>';
+		}
+
+	}
+	wp_reset_query();
+
+	?>
 
 	<a href="<?php echo esc_url( home_url() . '/news/' ); ?>" class="highlighted-link">See more news</a>
 
@@ -42,7 +70,7 @@ get_header();
 			$count++;
 
 			$event_id = get_the_ID();
-			$event_date = get_post_meta( $event_id, 'event_date', true );
+			$event_date = get_post_meta( $event_id, 'date', true );
 
 			$track_id = get_post_meta( $event_id, 'track', true );
 			$track_query = new WP_Query( array(
@@ -123,99 +151,15 @@ get_header();
 
 <section id="results">
 
-	<a href="<?php echo esc_url( home_url( '/car/' ) ); ?>" class="other-race" style="background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) ), url(<?php echo esc_url( get_template_directory_uri() . '/images/long2.png' ); ?>);">
-		<h2>Dallara DW12</h2>
+	<a href="<?php echo esc_url( get_permalink( get_option( 'src-current-season' ) ) ); ?>" class="other-race" style="background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) ), url(<?php echo esc_url( get_template_directory_uri() . '/images/long2.png' ); ?>);">
+		<h2>New Season</h2>
 		<p>Free with iRacing. Fixed setups provided for each track.</p>
 	</a>
 
 	<div id="standings">
-		<h3><?php esc_html_e( 'Drivers Championship', 'src' ); ?></h3>
-		<table>
-			<col width="13%">
-			<col width="25%">
-			<col width="7%">
-			<col width="10%">
-			<col width="20%">
-			<col width="25%">
-			<thead>
-				<tr>
-					<th>Pos</th>
-					<th>Name</th>
-					<th>Nat</th>
-					<th>Num</th>
-					<th></th>
-					<th>Pts</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td>1</td>
-					<td><a href="#">Paul Rosanski</a></td>
-					<td>23</td>
-					<td>DEU</td>
-					<td><img src="http://dev-hellyer.kiwi/wp-content/themes/undycar/images/car1.png" /></td>
-					<td>89</td>
-				</tr>
-				<tr>
-					<td>2</td>
-					<td><a href="#">Ryan Hellyer</a></td>
-					<td>27</td>
-					<td>NZL</td>
-					<td><img src="http://dev-hellyer.kiwi/wp-content/themes/undycar/images/car1.png" /></td>
-					<td>27</td>
-				</tr>
-				<tr>
-					<td>3</td>
-					<td><a href="#">Paul Rosanski</a></td>
-					<td>23</td>
-					<td>DEU</td>
-					<td><img src="http://dev-hellyer.kiwi/wp-content/themes/undycar/images/car1.png" /></td>
-					<td>89</td>
-				</tr>
-				<tr>
-					<td>4</td>
-					<td><a href="#">Ryan Hellyer</a></td>
-					<td>27</td>
-					<td>NZL</td>
-					<td><img src="http://dev-hellyer.kiwi/wp-content/themes/undycar/images/car1.png" /></td>
-					<td>27</td>
-				</tr>
-				<tr>
-					<td>5</td>
-					<td><a href="#">Paul Rosanski</a></td>
-					<td>23</td>
-					<td>DEU</td>
-					<td><img src="http://dev-hellyer.kiwi/wp-content/themes/undycar/images/car1.png" /></td>
-					<td>89</td>
-				</tr>
-				<tr>
-					<td>6</td>
-					<td><a href="#">Ryan Hellyer</a></td>
-					<td>27</td>
-					<td>NZL</td>
-					<td><img src="http://dev-hellyer.kiwi/wp-content/themes/undycar/images/car1.png" /></td>
-					<td>27</td>
-				</tr>
-				<tr>
-					<td>7</td>
-					<td><a href="#">Paul Rosanski</a></td>
-					<td>23</td>
-					<td>DEU</td>
-					<td><img src="http://dev-hellyer.kiwi/wp-content/themes/undycar/images/car1.png" /></td>
-					<td>89</td>
-				</tr>
-				<tr>
-					<td>8</td>
-					<td><a href="#">Ryan Hellyer</a></td>
-					<td>27</td>
-					<td>NZL</td>
-					<td><img src="http://dev-hellyer.kiwi/wp-content/themes/undycar/images/car1.png" /></td>
-					<td>27</td>
-				</tr>
-			</tbody>
-		</table>
+		<?php echo SRC_Core::championship( '', true ); ?>
 
-		<a href="<?php echo esc_url( home_url() . '/championship/' ); ?>" class="highlighted-link">See all championship standings</a>
+		<a href="<?php echo esc_url( get_permalink( get_option( 'src-current-season' ) ) ); ?>" class="highlighted-link">See all championship standings</a>
 
 	</div>
 

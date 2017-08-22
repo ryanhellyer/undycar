@@ -365,6 +365,8 @@ a img.aligncenter {
 
 	body.error404 &,
 	body.single &,
+	body.archive &,
+	body.blog &,
 	body.page & {
 		height: 300px;
 
@@ -1036,6 +1038,13 @@ input[type=submit],
 		text-decoration: underline;
 	}
 
+}
+
+#next-prev-buttons {
+	margin-top: 60px;
+	float: left;
+	width: 100%;
+	clear: both;
 }
 
 /* =Site footer

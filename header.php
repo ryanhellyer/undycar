@@ -67,11 +67,17 @@ if ( defined( 'SRC_MEMBERS_TEMPLATE' ) ) {
 	$title = '404 error';
 	$content = '';
 	$image_url = get_template_directory_uri() . '/images/cars/404-page.jpg';
+} else if ( is_archive() || is_home() ) {
+
+	$title = get_the_title( get_option( 'page_for_posts' ) );
+	$content = '';
+	$image_url = get_the_post_thumbnail_url( get_option( 'page_for_posts' ), 'src-featured' );
+
 } else if ( is_single() || is_page() ) {
 
 	$title = get_the_title( get_the_ID() );
 	$content = '';
-	$image_url = get_the_post_thumbnail_url( get_the_ID() );
+	$image_url = get_the_post_thumbnail_url( get_the_ID(), 'src-featured' );
 
 	// If no image URL, then grab the one from the featured image on front page
 	if ( false === $image_url ) {
@@ -81,9 +87,10 @@ if ( defined( 'SRC_MEMBERS_TEMPLATE' ) ) {
 			while ( $featured_item->have_posts() ) {
 				$featured_item->the_post();
 
-				$image_url = get_the_post_thumbnail_url();
+				$image_url = get_the_post_thumbnail_url( get_the_ID(), 'src-featured' );
 			}
 		}
+		wp_reset_query();
 
 	}
 
@@ -108,7 +115,7 @@ $title     = apply_filters( 'src_featured_title', $title );
 
 ?>
 
-<section id="featured-news" style="background-image: url(<?php echo esc_url( $image_url ); ?>">
+<section id="featured-news" style="background-image: url(<?php echo esc_url( $image_url ); ?>)">
 	<div class="text">
 		<h1><?php echo esc_html( $title ); ?></h1>
 		<?php echo do_shortcode( $content ); /* shouldn't be escaped */ ?>

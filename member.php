@@ -26,7 +26,7 @@ $road_irating = get_user_meta( $member_id, 'road_irating', true );
 get_header();
 
 echo '<article id="main-content">';
-
+echo 'MEMBERS SHOULD CHOOSE THEIR NUMBER AND COLOUR. NUMBER SHOULD BE LIMITED TO WHAT IS AVAILALBLE, PERHAPS STORE THEM ALL IN AN OPTION INSTEAD OF QUERYING ALL MEMBERS.';
 if ( $member_id === get_current_user_id() ) {
 	echo '
 	<form action="" method="POST">
