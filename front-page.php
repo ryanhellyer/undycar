@@ -12,7 +12,7 @@ get_header();
 
 <section id="latest-news">
 	<header>
-		<h2>Latest news</h2>
+		<h2>Latest News</h2>
 	</header><?php
 
 	// Load main loop
@@ -34,7 +34,7 @@ get_header();
 
 			<article id="' . esc_attr( 'post-' . get_the_ID() ) . '">
 				<a href="' . esc_attr( get_the_permalink( get_the_ID() ) ) . '">
-					<img src="' . esc_url( get_the_post_thumbnail_url( get_the_ID(), 'src-three' ) ) . '" />
+					<img src="' . esc_url( get_the_post_thumbnail_url( get_the_ID(), 'src-logo' ) ) . '" />
 					<date>' . get_the_date( get_option( 'date_format' ) ) . '</date>
 					<p>' . esc_html( get_the_title( get_the_ID() ) ) . '</p>
 				</a>
@@ -96,14 +96,18 @@ get_header();
 
 			}
 
-			$event_array[$event_date] = array(
-				'event_id'        => $event_id,
-				'track_logo'      => $track_logo,
-				'track_name'      => $track_name,
-				'track_type_slug' => $track_type_slug,
-				'track_type'      => $track_type,
-				'event_date'      => $event_date,
-			);
+			if ( $event_date > time() ) {
+
+				$event_array[$event_date] = array(
+					'event_id'        => $event_id,
+					'track_logo'      => $track_logo,
+					'track_name'      => $track_name,
+					'track_type_slug' => $track_type_slug,
+					'track_type'      => $track_type,
+					'event_date'      => $event_date,
+				);
+
+			}
 
 		}
 	}
@@ -130,15 +134,16 @@ get_header();
 
 				echo esc_html( $event['track_type'] );
 
+				$day_of_week = date( 'D', $event['event_date'] );
 				$month = date( 'M', $event['event_date'] );
 				$day_of_month = date( 'd', $event['event_date'] );
 
 				?>
 
 				<date>
+					<?php echo esc_html( $day_of_week ); ?>
 					<span><?php echo esc_html( $day_of_month ); ?></span>
 					<?php echo esc_html( $month ); ?>
-
 				</date>
 			</a>
 		</li><?php
@@ -151,15 +156,35 @@ get_header();
 
 <section id="results">
 
-	<a href="<?php echo esc_url( get_permalink( get_option( 'src-current-season' ) ) ); ?>" class="other-race" style="background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) ), url(<?php echo esc_url( get_template_directory_uri() . '/images/long2.png' ); ?>);">
+	<a href="<?php
+
+		if ( '' === get_option( 'current-season' ) ) {
+			$season_id = get_option( 'next-season' );
+		} else {
+			$season_id = get_option( 'current-season' );
+		}
+
+		echo esc_url( get_permalink( $season_id ) );
+
+	?>" class="other-race" style="background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) ), url(<?php echo esc_url( get_template_directory_uri() . '/images/long2.png' ); ?>);">
 		<h2>New Season</h2>
 		<p>Free with iRacing. Fixed setups provided for each track.</p>
 	</a>
 
 	<div id="standings">
-		<?php echo SRC_Core::championship( '', true ); ?>
+		<?php
 
-		<a href="<?php echo esc_url( get_permalink( get_option( 'src-current-season' ) ) ); ?>" class="highlighted-link">See all championship standings</a>
+		if ( '' === get_option( 'current-season' ) ) {
+			$season_id = get_option( 'last-season' );
+		} else {
+			$season_id = get_option( 'current-season' );
+		}
+
+		$championship_title = esc_html( get_the_title( $season_id ) . ' Championship' );
+		echo SRC_Core::championship( '', true, 10, $championship_title );
+
+		?>
+		<a href="<?php echo esc_url( get_permalink( $season_id ) ); ?>" class="highlighted-link">See full championship standings</a>
 
 	</div>
 

@@ -31,6 +31,7 @@ class SRC_Register extends SRC_Core {
 	 * @param   array   $args  The shortcodes arguments
 	 */
 	public function register_shortcode( $args ) {
+		$content = '';
 
 		// Don't show shortcode when logged in and on front page (form serves no purpose there then)
 		if ( is_user_logged_in() && is_front_page() ) {
@@ -81,21 +82,21 @@ class SRC_Register extends SRC_Core {
 		}
 
 		if ( isset( $message_text ) ) {
-			echo '<p><strong>' . esc_html( $message_text ) . '</strong></p>';
+			$content .= '<p><strong>' . esc_html( $message_text ) . '</strong></p>';
 		}
 
-		echo '
+		$content .= '
 <form action="' . esc_attr( $url ) . '" method="POST">
 ';
 
 		do_action( 'src_register_start' );
 
-		echo '
+		$content .= '
 
 	<input name="src-name" type="text" value="' . esc_attr( $display_name ) . '" placeholder="iRacing name" required />';
 
 		if ( ! defined( 'SRC_USERNAME_EXISTS' ) ) {
-			echo '
+			$content .= '
 	<input name="src-email" type="email" value="' . esc_attr( $email ) . '" placeholder="Email address" required />';
 		}
 
@@ -111,7 +112,7 @@ class SRC_Register extends SRC_Core {
 				$password_placeholder = __( 'Enter a unique password', 'src' );
 			}
 
-			echo '
+			$content .= '
 	<input name="src-password" type="password" value="' . esc_attr( $password ) . '" placeholder="' . esc_attr( $password_placeholder ) . '" required />';
 		}
 
@@ -123,9 +124,18 @@ class SRC_Register extends SRC_Core {
 			$joinus_text = __( 'Join us', 'src' );
 		}
 
-		echo '
+		$content .= '
 	<input type="submit" value="' . $joinus_text . '" />
 </form>';
+
+
+		// If argument of "echo" is set, then echo it
+		if ( ! isset( $args['echo'] ) ) {
+			echo $content;
+		} else {
+			return $content;
+		}
+
 	}
 
 	/**
@@ -134,6 +144,9 @@ class SRC_Register extends SRC_Core {
 	public function init() {
 
 		if ( isset( $_POST['src-name'] ) || isset( $_POST['src-email'] ) ) {
+
+			// Create cookie, as some signup processes are triggering 404's when there's an error
+			setcookie( 'undycar_signup', true, time() + ( 86400 * 30 ), '/' );
 
 			// Sanitize inputs
 			$username     = sanitize_title( sanitize_user(  $_POST['src-name'] ) );
@@ -163,43 +176,11 @@ class SRC_Register extends SRC_Core {
 				return;
 			}
 
-			// Create the user
-			$user_data = array(
-				'user_login'   => $username,
-				'display_name' => $display_name,
-				'user_pass'    => $password,
-				'user_email'   => $email,
-			);
-			$user_id = wp_insert_user( $user_data ) ;
-
-			// If no error, then add meta keys and log the person in
-			if ( ! is_wp_error( $user_id ) ) {
-
-				// Add some meta keys
-				$meta_keys = array(
-					'location',
-					'oval_avg_inc',
-					'oval_license',
-					'oval_irating',
-					'road_avg_inc',
-					'road_license',
-					'road_irating',
-					'custid',
-				);
-				foreach ( $meta_keys as $meta_key ) {
-					update_user_meta(
-						$user_id,
-						esc_html( $meta_key ),
-						esc_html( $member_info[$meta_key] )
-					);
-				}
-
+			// Register user and log them in
+			if ( true === $this->register_user( $username, $display_name, $password, $email ) ) {
 				// Log the user in
 				$this->attempt_user_login( $user_id, $username, $email, $password );
-			} else {
-				define( 'SRC_LOGIN_ERROR', true );
 			}
-
 		}
 
 	}
@@ -315,26 +296,5 @@ class SRC_Register extends SRC_Core {
 
 	}
 
-	/**
-	 * Does the name exist within iRacing?
-	 * If they do return their info.
-	 *
-	 * @param  string  $display_name  Name of member
-	 * @return array|bool   array if member exists in iRacing, otherwise false
-	 */
-	public function iracing_member_info( $display_name ) {
-		$dir = wp_upload_dir();
-
-		$stats = file_get_contents( $dir['basedir'] . '/iracing-members.json' );
-		$stats = json_decode( $stats, true );
-
-		// If user exists in iRacing, then return their stats, otherwise return false
-		if ( isset( $stats[$display_name] ) ) {
-			return $stats[$display_name];
-		} else {
-			return false;
-		}
-
-	}
 
 }

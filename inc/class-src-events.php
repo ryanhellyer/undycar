@@ -26,8 +26,6 @@ class SRC_Events extends SRC_Core {
 
 		add_filter( 'the_content',            array( $this, 'add_extra_content' ) );
 		add_filter( 'src_featured_image_url', array( $this, 'filter_featured_image_url' ) );
-		add_filter( 'src_featured_title',     array( $this, 'filtered_featured_title' ) );
-		add_filter( 'the_content',            array( $this, 'add_results' ), 9 );
 
 		// iRacing results uploader
 		add_action( 'add_meta_boxes', array( $this, 'results_upload_metabox' ) );
@@ -38,7 +36,7 @@ class SRC_Events extends SRC_Core {
 
 	/**
 	 * When on event, use tracks featured image.
-	 *c
+	 *
 	 * @string  string  $image_url  The featured image URL
 	 * @return  string  The modified image URL
 	 */
@@ -49,23 +47,6 @@ class SRC_Events extends SRC_Core {
 		}
 
 		return $image_url;
-	}
-
-	/**
-	 * When on event, use tracks featured title.
-	 *
-	 * @string  string  $title   The featured title
-	 * @return  string  The modified featured title
-	 */
-	public function filtered_featured_title( $title ) {
-
-		if ( 'event' === get_post_type() ) {
-			$title = __( 'Round', 'src' ) . ' ' . $this->event['round_number'] . ': ' . $this->event['season_name'];
-			$title .= "\n";
-			$title .= $this->event['current_round']['track_name'];
-		}
-
-		return $title;
 	}
 
 	/**
@@ -354,24 +335,24 @@ class SRC_Events extends SRC_Core {
 
 		$track_url = get_permalink( $this->event['current_round']['track'] );
 
-		$html = '
+		$sidebar_html = '
 		<div id="sidebar">
 ';
 
 		if ( isset( $track_logo_image_url ) ) {
-			$html .= '
+			$sidebar_html .= '
 			<a href="' . esc_url( $track_url ) . '">
 				<img style="width:100%;" src="' . esc_url( $track_logo_image_url ) . '" />
 			</a>';
 		}
 
-		$html .= '
+		$sidebar_html .= '
 			<p>
 				<strong>' . esc_html( $date ) . '</strong>
 			</p>';
 
 		foreach ( $this->event_types() as $name => $desc ) {
-			$html .= '<p>';
+			$sidebar_html .= '<p>';
 			$meta_key = 'event_' . sanitize_title( $name ) . '_timestamp';
 			$time = get_post_meta( get_the_ID(), $meta_key, true );
 			if ( '' !== $time ) {
@@ -396,105 +377,104 @@ class SRC_Events extends SRC_Core {
 
 				}
 
-				$html .= '<strong>' . esc_html( $desc ) . '</strong><br />Start time: ' . esc_html( $time ) . ' GMT';
+				$sidebar_html .= '<strong>' . esc_html( $desc ) . '</strong><br />Start time: ' . esc_html( $time ) . ' GMT';
 				if ( '' !== $length ) {
-					$html .= '<br />Length: ' . esc_html( $length );
+					$sidebar_html .= '<br />Length: ' . esc_html( $length );
 				}
-				$html .= '<br />' . $extra_session_info;
+				$sidebar_html .= '<br />' . $extra_session_info;
 			}
-			$html .= '</p>';
+			$sidebar_html .= '</p>';
 		}
 
 		$season_id = get_post_meta( get_the_ID(), 'season', true );
-		$html .= '
+		$sidebar_html .= '
 		</div>';
 
-		// If no content is present, then lets auto-generate it ... 
-		if ( '' === $content ) {
 
-			// Count up how many races there are
-			$race_count = 0;
-			if ( '' !== get_post_meta( get_the_ID(), 'event_race-1_timestamp', true ) ) {
-				$race_count++;
+		/**
+		 * Generate event description.
+		 */
+
+		// Count up how many races there are
+		$race_count = 0;
+		if ( '' !== get_post_meta( get_the_ID(), 'event_race-1_timestamp', true ) ) {
+			$race_count++;
+		}
+		if ( '' !== get_post_meta( get_the_ID(), 'event_race-2_timestamp', true ) ) {
+			$race_count++;
+		}
+		if ( '' !== get_post_meta( get_the_ID(), 'event_race-3_timestamp', true ) ) {
+			$race_count++;
+		}
+		$suffix = '';
+		if ( 0 < $race_count ) {
+			$suffix = 's';
+
+			// Add text for reversed grid races.
+			$qualifying_grid = '';
+			if ( 'reversed' === get_post_meta( get_the_ID(), 'qualifying_grid', true ) ) {
+				$qualifying_grid = ' ' . esc_html__( 'The grid for race two will be reversed.', 'src' );
 			}
-			if ( '' !== get_post_meta( get_the_ID(), 'event_race-2_timestamp', true ) ) {
-				$race_count++;
-			}
-			if ( '' !== get_post_meta( get_the_ID(), 'event_race-3_timestamp', true ) ) {
-				$race_count++;
-			}
-			$suffix = '';
-			if ( 0 < $race_count ) {
-				$suffix = 's';
-
-				// Add text for reversed grid races.
-				$qualifying_grid = '';
-				if ( 'reversed' === get_post_meta( get_the_ID(), 'qualifying_grid', true ) ) {
-					$qualifying_grid = ' ' . esc_html__( 'The grid for race two will be reversed.', 'src' );
-				}
-
-			}
-
-			/**
-			 * Load number formatter.
-			 *
-			 * uncomment extension=php_intl.dll in php.ini FPM
-			 * sudo apt-get install php7.0-intl
-			 * sudo service php7.0-fpm restart
-			 */
-			$number = new NumberFormatter( 'en', NumberFormatter::SPELLOUT );
-
-			// Output event description
-			$content .= wpautop(
-				sprintf(
-					'Round %s of %s in <a href="%s">%s</a> of the <a href="https://undycar.com/">Undycar Series</a> will be held on %s at the %s long <a href="%s">%s</a> %s track in %s. Qualifying begins at %s, followed by %s %s race%s.%s',
-					esc_html( $this->event['round_number'] ),
-					esc_html( $this->event['number_of_rounds_in_season'] ),
-					esc_html( get_permalink( $this->event['season_id'] ) ),
-				 	esc_html( get_the_title( $season_id ) ),
-					esc_html( $date ),
-					esc_html( get_post_meta( $this->event['current_round']['track'], 'track_length', true ) ) . ' km',
-					esc_url( $track_url ),
-					esc_html( $this->event['current_round']['track_name'] ),
-					esc_html( $this->event['current_round']['track_type'] ),
-					esc_html( src_get_countries()[ $this->event['current_round']['track_country'] ] ),
-					esc_html( get_post_meta( get_the_ID(), 'event_qualifying_timestamp', true ) ),
-					$number->format( $race_count ),
-					esc_html( get_post_meta( get_the_ID(), 'race_length', true ) ),
-					$suffix,
-					$qualifying_grid
-				)
-			);
 
 		}
 
-		$content = $html . $content;
+		/**
+		 * Load number formatter.
+		 *
+		 * uncomment extension=php_intl.dll in php.ini FPM
+		 * sudo apt-get install php7.0-intl
+		 * sudo service php7.0-fpm restart
+		 */
+		$number = new NumberFormatter( 'en', NumberFormatter::SPELLOUT );
 
+		// Output event description
+		$html = '';
+		$html .= wpautop(
+			sprintf(
+				'Round %s of %s in <a href="%s">%s</a> of the Undycar Series will be held on %s %s at the %s long <a href="%s">%s</a> %s track in %s. Qualifying begins at %s GMT, followed by %s %s race%s.%s',
+				esc_html( $this->event['round_number'] ),
+				esc_html( $this->event['number_of_rounds_in_season'] ),
+				esc_html( get_permalink( $this->event['season_id'] ) ),
+			 	esc_html( get_the_title( $season_id ) ),
+				esc_html( date( 'l', $this->event['current_round']['date'] ) ), // Day of week
+				esc_html( $date ),
+				esc_html( get_post_meta( $this->event['current_round']['track'], 'track_length', true ) ) . ' km',
+				esc_url( $track_url ),
+				esc_html( $this->event['current_round']['track_name'] ),
+				esc_html( $this->event['current_round']['track_type'] ),
+				esc_html( src_get_countries()[ $this->event['current_round']['track_country'] ] ),
+				esc_html( get_post_meta( get_the_ID(), 'event_qualifying_timestamp', true ) ),
+				$number->format( $race_count ),
+				esc_html( get_post_meta( get_the_ID(), 'race_length', true ) ),
+				$suffix,
+				$qualifying_grid
+			)
+		);
 
-
+		// Add track map
 		$track_map = $this->event['current_round']['track_map'];
 		$track_map_image = wp_get_attachment_image_src( $track_map, 'large' );
 		if ( isset( $track_map_image[0] ) ) {
 			$track_map_image_url = $track_map_image[0];
 		}
-
-		$content .= '
+		$map_html = '
 		<img src="' . $track_map_image_url . '" />
 		';
 
-
 		// Next/Previous race navigation buttons
-		$content .= '<div id="next-prev-buttons">';
+		$nav_html = '<div id="next-prev-buttons">';
 		if ( isset( $this->event['previous_round'] ) && false !==  $this->event['previous_round'] ) {
 			$url = get_permalink( $this->event['previous_round']['id'] );
-			$content .= '<a href="' . esc_url( $url ) . '" class="button alignleft">&laquo; ' . esc_html__( 'Last race', 'src' ) . '</a>';
+			$nav_html .= '<a href="' . esc_url( $url ) . '" class="button alignleft">&laquo; ' . esc_html__( 'Last race', 'src' ) . '</a>';
 		}
 
 		if ( isset( $this->event['next_round'] ) && false !== $this->event['next_round'] ) {
 			$url = get_permalink( $this->event['next_round']['id'] );
-			$content .= '<a href="' . esc_url( $url ) . '" class="button alignright">' . esc_html__( 'Next race', 'src' ) . '&raquo;</a>';
-		}
-		$content .= '</div>';
+			$nav_html .= '<a href="' . esc_url( $url ) . '" class="button alignright">' . esc_html__( 'Next race', 'src' ) . '&raquo;</a>';
+		}-
+		$nav_html .= '</div>';
+
+		$content = '<div id="base-content">' . $content . $html . $this->add_results() . $map_html . $nav_html . '</div>' . $sidebar_html;
 
 		return $content;
 
@@ -525,14 +505,31 @@ class SRC_Events extends SRC_Core {
 	public function results_upload_metabox_html() {
 		echo '
 		<p>
-			<input type="file" name="result-file" />
-			<input type="hidden" id="result-nonce" name="result-nonce" value="' . esc_attr( wp_create_nonce( __FILE__ ) ) . '">
+			<label for="result-1-file">' . esc_html__( 'Race 1 results', 'src' ) . '</label>
+			<input type="file" id="result-1-file" name="result-1-file" />
 		</p>
 		<p>
-			' . print_r(
-					get_post_meta( get_the_ID(), json_decode( '_results' ), true ),
+			<label for="result-2-file">' . esc_html__( 'Race 2 results', 'src' ) . '</label>
+			<input type="file" id="result-2-file" name="result-2-file" />
+		</p>
+		<p>
+			<label for="result-3-file">' . esc_html__( 'Race 3 results', 'src' ) . '</label>
+			<input type="file" id="result-3-file" name="result-3-file" />
+		</p>
+		<input type="hidden" id="result-nonce" name="result-nonce" value="' . esc_attr( wp_create_nonce( __FILE__ ) ) . '">
+		<p>';
+
+
+		foreach ( array( 1, 2, 3 ) as $key => $race_number ) {
+			echo '
+			<textarea style="font-family:monospace;font-size:9px;line-height:9px;width:100%;height:100px;">' . 
+				print_r(
+					json_decode( get_post_meta( get_the_ID(), '_results_' . $race_number, true ), true ),
 					true
-				) . '
+				) . 
+			'</textarea>';
+		}
+		echo '
 
 		</p>';
 	}
@@ -545,64 +542,91 @@ class SRC_Events extends SRC_Core {
 	 */
 	public function results_upload_save( $post_id, $post ) {
 
+		if ( ! isset( $_POST['result-nonce'] ) ) {
+			return $post_id;
+		}
 
-		// Only save if correct post data sent
-		if ( isset( $_FILES['result-file']['tmp_name'] ) ) {
+		// Do nonce security check
+		if ( ! wp_verify_nonce( $_POST['result-nonce'], __FILE__ ) ) {
+			return $post_id;
+		}
 
-			// Do nonce security check
-			if ( ! wp_verify_nonce( $_POST['result-nonce'], __FILE__ ) ) {
-				return;
-			}
+		foreach ( array( 1, 2, 3 ) as $key => $race_number ) {
 
-			// Get the file and split it into rows
-			$temp_file =  $_FILES['result-file']['tmp_name'];
-			$csv = file_get_contents( $temp_file );
-			$rows = explode( "\n", $csv );
+			// Only save if correct post data sent
+			if ( isset( $_FILES['result-' . $race_number . '-file']['tmp_name'] ) && '' !== $_FILES['result-' . $race_number . '-file']['tmp_name'] ) {
+
+				// Get the file and split it into rows
+				$temp_file =  $_FILES['result-' . $race_number . '-file']['tmp_name'];
+				$csv = file_get_contents( $temp_file );
+				$rows = explode( "\n", $csv );
 
 
-			$column_labels = $rows[3];
+				$column_labels = $rows[3];
 
-			unset( $rows[0] );
-			unset( $rows[1] );
-			unset( $rows[2] );
-			unset( $rows[3] );
+				unset( $rows[0] );
+				unset( $rows[1] );
+				unset( $rows[2] );
+				unset( $rows[3] );
 
-			$columns_to_keep = array(
-				7 => 'name',
-				8 => 'start_pos',
-				9 => 'car_no',
-				11 => 'out',
-				12 => 'interval',
-				13 => 'laps_led',
-				14 => 'qual_time',
-				15 => 'avg_lap_time',
-				16 => 'fastest_lap_time',
-				17 => 'fastest_lap',
-				18 => 'laps-completed',
-				19 => 'incidents',
-			);
+				$columns_to_keep = array(
+					7 => 'name',
+					8 => 'start_pos',
+					9 => 'car_no',
+					11 => 'out',
+					12 => 'interval',
+					13 => 'laps_led',
+					14 => 'qual_time',
+					15 => 'avg_lap_time',
+					16 => 'fastest_lap_time',
+					17 => 'fastest_lap',
+					18 => 'laps-completed',
+					19 => 'incidents',
+				);
 
-			$results = array();
-			foreach ( $rows as $key => $row ) {
-				$row = str_replace( '"', '', $row );
+				$results = array();
+				foreach ( $rows as $key => $row ) {
+					$row = str_replace( '"', '', $row );
+					$driver_result = array();
+					$row_array = explode( ',', $row );
 
-				$driver_result = array();
-				$row_array = explode( ',', $row );
-				foreach ( $row_array as $column_number => $cell ) {
+					// Register the member if they're not in the system already
+					if ( ! isset( $row_array[7] ) ) {
+						continue;
+					}
 
-					if ( isset( $columns_to_keep[$column_number] ) ) {
+					$display_name = utf8_encode( $row_array[7] );
+					$username = sanitize_title( $display_name );
+					if ( ! username_exists( sanitize_title( $username ) ) ) {
 
-						$column_name = $columns_to_keep[$column_number];
-						$results[ $row_array[0] ][$column_name] = utf8_encode( $cell );
+						// Check if iRacing member exists
+						if ( $member_info = $this->iracing_member_info( $display_name ) ) {
+
+							// Register user
+							$this->register_user( $username, $display_name, md5( $display_name ), 'replace+' . md5( $display_name) . '@mem.com', $member_info );
+
+						}
+
+					}
+
+					foreach ( $row_array as $column_number => $cell ) {
+
+						if ( isset( $columns_to_keep[$column_number] ) ) {
+
+							$column_name = $columns_to_keep[$column_number];
+							$cell = utf8_encode( $cell );
+							$results[ $row_array[0] ][$column_name] = $cell;
+
+						}
 
 					}
 
 				}
 
+				$results = json_encode( $results, JSON_UNESCAPED_UNICODE );
+				update_post_meta( $post_id, '_results_' . $race_number, $results );
 			}
 
-			$results = json_encode( $results );
-			update_post_meta( $post_id, '_results', $results );
 		}
 
 	}
@@ -640,69 +664,70 @@ class SRC_Events extends SRC_Core {
 	/**
 	 * Add results to events pages.
 	 *
-	 * @param  string  $content  The page content
 	 * @return string  The modified page content
 	 */
-	public function add_results( $content ) {
+	public function add_results() {
 		$html = '';
 
-		$results = get_post_meta( get_the_ID(), '_results', true );		
+		foreach ( array( 1, 2, 3 ) as $key => $race_number ) {
 
-		if ( '' === $results ) {
-			return $content;
-		}
+			$results = get_post_meta( get_the_ID(), '_results_' . $race_number, true );		
 
-		$results = json_decode( $results, true );
-		if ( empty( $results ) ) {
-			return $content;
-		}
-
-
-		$html .= '<h3>' . esc_html__( 'Results table', 'src' ) . '</h3>';
-		$html .= '<table>';
-
-		$html .= '<thead><tr>';
-
-
-		$columns_to_keep = array(
-			'Name',
-			'Start',
-			'Car',
-			'Out',
-			'Interval',
-			'Laps led',
-			'Qual',
-			'Avg lap',
-			'Fastest lap',
-			'fastest lap',
-			'laps compl',
-			'Inc',
-		);
-
-		$html .= '<th>' . esc_html__( 'Pos', 'src' ) . '</th>';			
-		foreach ( $columns_to_keep as $key => $label ) {
-			$html .= '<th>' . esc_html( $label ) . '</th>';			
-		}
-
-		$html .= '</thead>';
-		$html .= '<tbody>';
-
-		foreach ( $results as $key => $result ) {
-			$html .= '<tr>';
-			$html .= '<td>' . esc_html( $key ) . '</td>';
-
-			foreach ( $result as $k => $cell ) {
-				$html .= '<td>' . esc_html( $cell ) . '</td>';
+			if ( '' === $results ) {
+				continue;
 			}
 
-			$html .= '</tr>';
+			$results = json_decode( $results, true );
+			if ( empty( $results ) ) {
+				continue;
+			}
+
+			$html .= '<h3>' . esc_html__( 'Results table - Race #' . $race_number, 'src' ) . '</h3>';
+			$html .= '<table>';
+
+			$html .= '<thead><tr>';
+
+
+			$columns_to_keep = array(
+				'Name',
+				'Start',
+				'Car',
+				'Out',
+				'Interval',
+				'Laps led',
+				'Qual',
+				'Avg lap',
+				'Fastest lap',
+				'fastest lap',
+				'laps compl',
+				'Inc',
+			);
+
+			$html .= '<th>' . esc_html__( 'Pos', 'src' ) . '</th>';			
+			foreach ( $columns_to_keep as $key => $label ) {
+				$html .= '<th>' . esc_html( $label ) . '</th>';			
+			}
+
+			$html .= '</thead>';
+			$html .= '<tbody>';
+
+			foreach ( $results as $key => $result ) {
+				$html .= '<tr>';
+				$html .= '<td>' . esc_html( $key ) . '</td>';
+
+				foreach ( $result as $k => $cell ) {
+					$html .= '<td>' . esc_html( $cell ) . '</td>';
+				}
+
+				$html .= '</tr>';
+			}
+
+			$html .= '</tbody>';
+
+			$html .= '</table>';
 		}
 
-		$html .= '</tbody>';
-
-		$html .= '</table>';
-
-		return $content . $html;
+		return $html;
 	}
 
 }

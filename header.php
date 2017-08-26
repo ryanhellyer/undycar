@@ -22,7 +22,7 @@
 
 <header id="site-header" role="banner">
 
-	<nav><?php /*
+	<nav id="main-menu-wrapper">
 		<ul id="main-menu"><?php
 
 			echo "\n\n";
@@ -38,7 +38,7 @@
 
 			?>
 
-		</ul>*/?>
+		</ul>
 	</nav>
 
 	<h1><a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php esc_attr_e( get_bloginfo( 'name', 'display' ) ); ?>"><?php esc_html_e( get_bloginfo( 'name', 'display' ) ); ?></a></h1>
@@ -73,7 +73,11 @@ if ( defined( 'SRC_MEMBERS_TEMPLATE' ) ) {
 	$content = '';
 	$image_url = get_the_post_thumbnail_url( get_option( 'page_for_posts' ), 'src-featured' );
 
-} else if ( is_single() || is_page() ) {
+} else if (
+	( is_single() || is_page() )
+	&&
+	! is_front_page()
+) {
 
 	$title = get_the_title( get_the_ID() );
 	$content = '';

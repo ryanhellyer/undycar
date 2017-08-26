@@ -7,7 +7,7 @@ $dark_background_colour: #202020;
 $light_background_colour: #ebebeb;
 $forum_odd_background: #f9f9f9;
 $header_height: 70px;
-$header_height_mobile: 53px;
+$header_height_mobile: 40px;
 $wrap_width: 92%;
 $wrap_padding: 4%;
 
@@ -114,6 +114,10 @@ address {
 	nav {
 		float: right;
 
+		&:hover {
+			cursor: pointer;
+		}
+
 		&:before {
 			margin: 10px 15px 0 0;
 			display: block;
@@ -121,6 +125,53 @@ address {
 			font-family: src;
 			font-size: 50px;
 			content: "\e906";
+		}
+
+	}
+
+}
+
+#main-menu {
+	min-width: 300px;
+	max-width: 300px;
+	width: 90%;
+	position: absolute;
+	right: -300px;
+	top: $header_height;
+	background: #202020;
+	height: calc(100vh - 70px);
+	transition: 0.3s;
+
+	&.menu-open {
+		display: block;
+		right: 0;
+	}
+
+	li {
+		display: block;
+		width: 100%;
+		font-family: "Open Sans", sans-serif;
+		font-size: 0.9rem;
+		text-transform: uppercase;
+		font-weight: 800;
+		border-top: 1px solid #333;
+		border-bottom: 1px solid #111;
+
+		&:last-child {
+			border-bottom: none;
+		}
+
+	}
+
+	a {
+		color: #fff;
+		display: block;
+		width: 100%;
+		padding: 25px 30px;
+
+		&:hover {
+			text-decoration: none;
+			background: #333;
 		}
 
 	}
@@ -357,11 +408,20 @@ a img.aligncenter {
 #featured-news {
 	position: relative;
 	width: 100%;
-	height: 550px;
-	margin-top: 70px;
+	margin-top: $header_height;
 	background-position: center 0;
 	background-size: cover;
 	text-align: center;
+
+	body.home.page & {
+		height: 550px;
+
+		h1 {
+			font-size: 3rem;
+			line-height: 1;
+		}
+
+	}
 
 	body.error404 &,
 	body.single &,
@@ -371,8 +431,8 @@ a img.aligncenter {
 		height: 300px;
 
 		h1 {
-			font-size: 5rem;
-			line-height: 5rem;
+			font-size: 4rem;
+			line-height: 4.5rem;
 		}
 
 	}
@@ -385,15 +445,14 @@ a img.aligncenter {
 
 	h1 {
 		width: 60%;
-		margin: 0 0 30px 0;
+		margin: 0 0 10px 0;
 		padding: 0 20%;
 		color: #fff;
 		text-align: center;
 		font-family: $heading_font;
-		font-size: 3rem;
-		text-shadow: 0 0 2px #000;
 		font-weight: 700;
 		border: none;
+		text-shadow: 0 0 15px rgba(0,0,0,0.6);
 	}
 
 	form {
@@ -459,7 +518,7 @@ a img.aligncenter {
 	}
 
 	date {
-		margin: 20px 0;
+		margin: 20px 0 0 0;
 		font-family: $paragraph_font;
 		font-weight: 600;
 		font-size: 0.8rem;
@@ -481,6 +540,19 @@ a img.aligncenter {
 		margin-bottom: 30px;
 	}
 
+}
+
+/* =Avatar
+-------------------------------------------------------------- */
+.avatar {
+	float: right;
+	width: 33%;
+	height: auto;
+	margin: 0 0 60px 60px;
+}
+
+#comments .avatar {
+	width: auto;
 }
 
 /* =Schedule
@@ -551,9 +623,10 @@ a img.aligncenter {
 
 		date {
 			font-size: 0.9rem;
+			margin-top: 60px;
 
 			span {
-				margin-top: 60px;
+				margin: 0 0 3px 0;
 				font-weight: 400;
 				font-size: 2rem;
 			}
@@ -571,14 +644,24 @@ table {
 //	width: 100%;
 	border-spacing: 0;
 	border-collapse: collapse;
+
+	&#src-schedule,
+	&#src-championship {
+		th,
+		td {
+			text-align: left;
+			padding: 0.8rem 1rem;
+		}
+	}
+
 }
 
 td,
 th {
-	text-align: left;
+	text-align: center;
 	font-family: $paragraph_font;
 	font-size: 0.9rem;
-	padding: 0.8rem 1rem;
+	padding: 0.8rem 0.1rem;
 }
 
 th {
@@ -622,6 +705,7 @@ td span.tick-mark:before {
 		position: relative;
 		width: 25%;
 		background-size: cover;
+		background-position: center;
 
 		&:hover {
 			opacity: 0.9;
@@ -753,12 +837,17 @@ td span.tick-mark:before {
 /* =Sidebar
 -------------------------------------------------------------- */
 
+#base-content {
+	float: left;
+	width: 70%;
+}
+
 #sidebar {
 	float: right;
-	width: 25%;
+	width: 17%;
 	background: #efefef;
 	border-left: 6px solid #aaa;
-	padding: 40px;
+	padding: 4%;
 	margin: 0 0 60px 40px;
 
 	h3 {
@@ -879,6 +968,7 @@ select {
 
 img {
 	max-width: 100%;
+	height: auto;
 }
 
 /* =Comments
@@ -1163,41 +1253,37 @@ input[type=submit],
 
 /* =Smaller devices
 -------------------------------------------------------------- */
-@media only screen and (max-width: 1024px) {
-
-	// Sidebar setup
-	#sidebar {
-		display: none;
-	}
-
-	// Main
-	#main {
-		margin: 60px 0 0 0;
-	}
-
-	// Schedule
-	#schedule {
-		width: 100%;
-		padding-right: 0;
-		padding-left: 0;
-	}
-
-}
 
 @media only screen and (max-width: 768px) {
 
-	#main {
+	#base-content {
+		width: 68%;
+		overflow: scroll;
+	}
 
-		article {
-			width: 80%;
-		}
+	#latest-news article {
+		width: 48%;
+	}
 
+	#schedule li {
+		width: 18%;
 	}
 
 	#results {
 
-		.other-race {
-			display: none;
+		a.other-race {
+			width: 100%;
+			height: auto !important;
+
+			h2 {
+				padding: 10px 30px 0 30px
+			}
+
+			p {
+				position: static;
+				padding: 0 30px 30px 30px;
+			}
+
 		}
 
 		#standings {
@@ -1233,5 +1319,161 @@ input[type=submit],
 
 	}
 
+	#social-icons {
+		clear: both;
+	}
+
+}
+
+@media only screen and (max-width: 481px) {
+
+	#site-header {
+		height: $header_height_mobile;
+
+		h1 {
+			border-left: 5px solid #e43146;
+			font-size: 33px;
+			background-size: 26%;
+			text-indent: 75px;
+			height: $header_height_mobile;
+		}
+
+		nav {
+
+			&:before {
+				font-size: 34px;
+				margin: 2px 7px 0 0;
+			}
+
+		}
+
+	}
+
+	#main-menu {
+		top: $header_height_mobile;
+		height: calc(100vh - 40px);
+	}
+
+	#featured-news {
+		margin-top: $header_height_mobile;
+
+		h1 {
+			width: 90%;
+			padding: 5%;
+		}
+
+		form {
+
+			input {
+				margin-bottom: 10px;
+			}
+
+			input[type=submit],
+			.button {
+				min-width: 50%;
+			}
+		}
+
+		body.error404 &,
+		body.single &,
+		body.archive &,
+		body.blog &,
+		body.page & {
+			height: 300px;
+
+			h1 {
+				font-size: 2.5rem;
+				line-height: 2.5rem;
+			}
+
+		}
+
+	}
+
+	#latest-news article {
+		width: 100%;
+		margin-left: 0;
+		margin-bottom: 20px;
+	}
+
+	#schedule li {
+		width: 46%;
+
+		&.post-3,
+		&.post-4,
+		&.post-5 {
+			display: none;
+		}
+
+	}
+
+	#base-content {
+		width: 100%;
+		overflow: scroll;
+	}
+
+	#sidebar {
+		border-left: 0;
+		width: 80%;
+		padding: 0 10%;
+	}
+
+	#next-prev-buttons {
+		text-align: center;
+		margin-bottom: 60px;
+
+		.alignright,
+		.alignleft {
+			float: none;
+			margin: 5px 0;
+		}
+
+	}
+
+	.gallery.gallery-columns-4 .gallery-item {
+		width: 100%;
+	}
+
+	.gallery .gallery-item {
+		margin: 3% 0;
+	}
+
+	// Hide some table columns
+	.col-fp1,
+	.col-fp2,
+	.col-number,
+	.col-nationality {
+		display: none;
+	}
+
+	td,
+	th {
+		padding: 0.8rem 0.2rem;
+	}
+
+	#site-footer {
+
+		a {
+
+			&[href*="twitter.com"],
+			&[href*="youtube.com"],
+			&[href*="facebook.com"] {
+				margin: 0;
+			}
+
+			&[href*="twitter.com"]:before,
+			&[href*="youtube.com"]:before,
+			&[href*="facebook.com"]:before {
+				padding: 3px;
+				margin-top: -10px;
+			}
+
+		}
+
+		ul#footer-menu li {
+			margin-left: 10px;
+		}
+
+	}
 
 }
