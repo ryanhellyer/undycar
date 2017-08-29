@@ -255,4 +255,49 @@ class SRC_Core {
 
 	}
 
+	/**
+	 * Get all drivers from a specific season.
+	 * Defaults to all seasons.
+	 *
+	 * @param  string  $season  The season to get drivers from
+	 * @return array  all the drivers for the chosen season
+	 */
+	public function get_seasons_drivers( $season = 'all' ) {
+		$drivers = array();
+
+		$all_drivers = get_users();
+		foreach ( $all_drivers as $driver ) {
+			$driver_id = $driver->ID;
+
+			// Ignore season 1 drivers who haven't set their password (means they never intended to register for the site)
+			if (
+				'reserve' === $season
+				&&
+				(
+					'1' !== get_user_meta( $driver_id, 'password_set' )
+					&&
+					'1' !== get_user_meta( $driver_id, 'season', true )
+				)
+				&&
+				get_post_field( 'post_name', get_post( get_option( 'next-season' ) ) ) !== get_user_meta( $driver_id, 'season', true )
+			) {
+
+				// check if super admin, to avoid Ryan's personal account appearing in list
+				if ( ! is_super_admin( $driver_id ) ) {
+					$drivers[] = $driver->ID;
+				}
+
+			} else if  (
+				'all' === $season || $season === get_user_meta( $driver_id, 'season', true )
+				&&
+				'reserve' !== $season
+			) {
+				$drivers[] = $driver->ID;
+			}
+
+		}
+
+		return $drivers;
+	}
+
 }

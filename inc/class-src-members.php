@@ -18,6 +18,7 @@ class SRC_Members extends SRC_Core {
 		add_action( 'init',       array( $this, 'save' ) );
 		add_filter( 'init',       array( $this, 'member_template' ), 99 );
 		add_filter( 'get_avatar', array( $this, 'avatar_filter' ) , 1 , 5 );
+		add_shortcode( 'undycar_drivers', array( $this, 'display_driver_table' ) );
 	}
 
 	/**
@@ -52,7 +53,11 @@ class SRC_Members extends SRC_Core {
 			&&
 			is_user_logged_in()
 			&&
-			( is_super_admin() || $_POST['member-id'] === get_current_user_id() )
+			(
+				absint( $_POST['member-id'] ) === get_current_user_id()
+				||
+				is_super_admin()
+			)
 		) {
 
 			$member_id = absint( $_POST['member-id'] );
@@ -158,6 +163,42 @@ class SRC_Members extends SRC_Core {
 
 			}
 
+			// Process checkbox
+			if ( isset( $_POST['receive-extra-communication'] ) ) {
+				$receive_extra_communication = 1;
+			} else {
+				$receive_extra_communication = '';
+			}
+			update_user_meta( $member_id, 'receive_extra_communication', $receive_extra_communication );
+
+			// Set the password
+			if ( isset( $_POST['password'] ) && '' !== $_POST['password'] ) {
+				$password = $_POST['password'];
+
+				wp_update_user(
+					array(
+						'ID'        => $member_id,
+						'user_pass' => $password
+					)
+				);
+
+				update_user_meta( $member_id, 'password_set', true );
+
+				$member_info = get_userdata( $member_id );
+				$username = sanitize_title( $member_info->data->display_name );
+
+				$credentials = array();
+				$credentials['user_login']    = $username;
+				$credentials['user_password'] = $password;
+				$credentials['remember']      = true;
+
+				$user = wp_signon( $credentials, false );
+				if ( is_wp_error( $user ) ) {
+					wp_die( 'uh oh! Something went wrong. Please private message "Ryan Hellyer" on iRacing and let him know that error #248 occurred.' );
+				} else {}
+
+			}
+
 		} else if ( isset( $_POST['src_nonce'] ) ) {
 			wp_die( '<strong>Error:</strong> Form could not be processed due to a nonce error. You should never have seen this error. Please contact an admin and let them know this occurred and what you were doing when it happened.' );
 		}
@@ -225,6 +266,51 @@ class SRC_Members extends SRC_Core {
 		}
 
 		return $image_url;
+	}
+
+	public function display_driver_table( $args, $content ) {
+
+		if ( isset( $args['season'] ) ) {
+			$season = $args['season'];
+		} else {
+			$season = 'all';
+		}
+
+		$drivers = $this->get_seasons_drivers( $season );
+
+		$content .= '
+		<table id="src-schedule">
+			<thead>
+				<tr>
+					<th class="col">#</th>
+					<th class="col-event">Driver Name</th>
+					<th class="col-event">Number</th>
+				</tr>
+			</thead>
+			<tbody>';
+
+		$count = 0;
+		foreach ( $drivers as $key => $driver_id ) {
+			$count++;
+
+			$driver = get_userdata( $driver_id );
+			$driver_name = $driver->display_name;
+
+			$content .= '
+				<tr>
+					<td>' . esc_html( $count ) . '</td>
+					<td><a href="' . esc_url( home_url() . '/member/' . sanitize_title( $driver_name ) . '/' ) . '">' . esc_html( $driver_name ) . '</a></td>
+					<td>' . esc_html( get_user_meta( $driver_id, 'car_number', true ) ) . '</td>
+				</tr>';
+
+		}
+
+		$content .= '
+			</tbody>
+		</table>
+		';
+
+		return $content;
 	}
 
 }

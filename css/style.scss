@@ -483,6 +483,10 @@ a img.aligncenter {
 		margin: 40px 0 20px 0;
 	}
 
+	img {
+		width: 100%;
+	}
+
 	article {
 		float: left;
 		width: 23%;
@@ -679,6 +683,16 @@ td {
 		display: block;
 		font-weight: 300;
 		font-size: 0.8rem;
+	}
+
+	&.past-event {
+		color: #bbb;
+		text-decoration: line-through;
+
+		a {
+			color: #bbb;
+			text-decoration: line-through;
+		}
 	}
 
 }
@@ -915,7 +929,7 @@ h4 {
 	text-decoration: underline;
 }
 
-
+form span,
 textarea,
 label,
 input,
@@ -936,6 +950,10 @@ form p {
 	margin: 0 0 60px 0;
 }
 
+form span {
+	font-size: 0.8rem;
+}
+
 textarea {
 	width: 96%;
 	margin: 0 0 20px 0;
@@ -954,9 +972,15 @@ input {
 	padding: 10px 20px;
 }
 
+.highlighted-field {
+	border: 5px solid #dd0000;
+}
+
 input[type=checkbox] {
 	display: inline-block;
 	margin: 5px 10px 5px 20px;
+    width: 25px;
+    height: 25px;
 }
 
 select {
@@ -975,6 +999,8 @@ img {
 -------------------------------------------------------------- */
 
 #comments {
+	float: left;
+	width: 100%;
 	margin-top: 60px;
 	border-top: 1px solid #ddd;
 

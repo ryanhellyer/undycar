@@ -20,6 +20,7 @@ class SRC_Seasons extends SRC_Core {
 		// Add action hooks
 		add_action( 'init',            array( $this, 'init' ) );
 		add_action( 'the_content',     array( $this, 'schedule' ) );
+		add_action( 'the_content',     array( $this, 'drivers' ) );
 		add_action( 'the_content',     array( $this, 'championship' ), 8 );
 		add_action( 'cmb2_admin_init', array( $this, 'seasons_metaboxes' ) );
 
@@ -55,7 +56,7 @@ class SRC_Seasons extends SRC_Core {
 	 * @return string  The modified post content
 	 */
 	public function schedule( $content ) {
-//print_r( $args );
+
 		if ( 'season' === get_post_type() ) {
 			$season_id = get_the_ID();
 		} else if ( 'a' === 'b' ) {
@@ -94,6 +95,10 @@ class SRC_Seasons extends SRC_Core {
 				$query->the_post();
 
 				$date = get_post_meta( get_the_ID(), 'date', true );
+
+				if ( $date < time() ) {
+					$events[$date]['past'] = true;
+				}
 
 				$events[$date]['id'] = get_the_ID();
 				$events[$date]['track']      = get_post_meta( get_the_ID(), 'track', true );
@@ -160,6 +165,11 @@ class SRC_Seasons extends SRC_Core {
 
 			$html .= '<tr>';
 
+			$past_class = '';
+			if ( isset( $events[$date]['past'] ) && true === $events[$date]['past'] ) {
+				$past_class = ' past-event';
+			}
+
 			// Only load the columns being used
 			foreach ( $columns as $label => $column ) {
 
@@ -198,7 +208,7 @@ class SRC_Seasons extends SRC_Core {
 						}
 					}
 
-					$html .= '<td class="' . esc_attr( sanitize_title( 'col-' . $label ) ) . '">' . $text /* do not escape */ . '</td>';
+					$html .= '<td class="' . esc_attr( sanitize_title( 'col-' . $label ) . $past_class ) . '">' . $text /* do not escape */ . '</td>';
 
 				}
 
@@ -214,6 +224,23 @@ class SRC_Seasons extends SRC_Core {
 		wp_reset_query();
 
 		$content .= $html;
+
+		return $content;
+	}
+
+	public function drivers( $content ) {
+
+		$season_slug = get_post_field( 'post_name', get_post( get_option( 'next-season' ) ) );
+		if ( '' === $season_slug ) {
+			$season_slug = get_post_field( 'post_name', get_post( get_option( 'current-season' ) ) );
+		}
+
+		$current_season_slug = get_post_field( 'post_name', get_the_ID() );
+
+		if ( $current_season_slug === $season_slug ) {
+			$content .= '<h3>Drivers</h3>';
+			$content .= '[undycar_drivers season="' . esc_attr( $season_slug ) . '"]';
+		}
 
 		return $content;
 	}

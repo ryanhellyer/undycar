@@ -1,5 +1,6 @@
 <?php
 
+require( 'tools/user-processing.php' );
 require( 'tools/emails.php' );
 require( 'tools/pull-names-from-csv.php' );
 require( 'tools/convert-json.php' );
