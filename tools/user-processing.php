@@ -5,10 +5,18 @@
 // ******** SHOULD PROCESS STUFF HERE WITH $this->get_seasons_drivers()
 
 
+// Only allow for super admins
+if ( ! is_super_admin() ) {
+	return;
+}
+
 // Bail out if not processing users now
 if ( ! isset( $_GET['user_processing'] ) ) {
 	return;
 }
+
+
+
 
 
 

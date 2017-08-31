@@ -38,6 +38,14 @@
 
 			// Add login/logout button
 			if ( is_user_logged_in() ) {
+
+				$current_user = wp_get_current_user();
+				$username = $current_user->data->user_login;
+				if ( 'ryan' === $username ) {
+					$username = 'ryan-hellyer';
+				}
+				echo '<li><a href="' . esc_url( home_url() . '/members/' . $username . '/' ) . '">View profile</a></li>';
+
 				echo '<li><a href="' . esc_url( wp_logout_url( home_url() ) ) . '">Log out</a></li>';
 			} else {
 				echo '<li><a href="' . esc_url( home_url() . '/login/' ) . '">Log in</a></li>';
