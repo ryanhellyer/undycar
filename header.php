@@ -58,7 +58,14 @@
 		</ul>
 	</nav>
 
-	<h1><a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php esc_attr_e( get_bloginfo( 'name', 'display' ) ); ?>"><?php esc_html_e( get_bloginfo( 'name', 'display' ) ); ?></a></h1>
+	<h1><a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php esc_attr_e( get_bloginfo( 'name', 'display' ) ); ?>"><?php 
+		$site_title = get_bloginfo( 'name', 'display' );
+		$site_title = explode( ' ', $site_title );
+		echo $site_title[0];
+		if ( isset( $site_title[1] ) ) {
+			echo '<span> ' . $site_title[1] . '</span>';
+		}
+	?></a></h1>
 
 </header><!-- #site-header -->
 
@@ -75,7 +82,11 @@ $args = array(
 	'fields'                 => 'ids',
 ) ;
 
-if ( defined( 'SRC_MEMBERS_TEMPLATE' ) ) {
+if ( is_search() ) {
+	$title = sprintf( esc_html__( 'Search Results for: "%s"', 'undiecar' ), get_search_query() );
+	$content = '';
+	$image_url = get_template_directory_uri() . '/images/cars/richard-browell.jpg';
+} else if ( defined( 'SRC_MEMBERS_TEMPLATE' ) ) {
 	global $display_name;
 	$title = $display_name;
 	$content = '';

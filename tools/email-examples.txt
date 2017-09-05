@@ -1,0 +1,70 @@
+-------------------------------	 PRE-RACE MESSAGE -----------------------------------------
+SUBJECT: Upcoming Undiecar Championship round
+Hi [NAME],
+
+[b]Test race #2[/b]
+I'm running another test race in one hours time, as I'm still not sure how to handle the back to back races efficiently within iRacing. If you have time, it'd be fun to see you on track . Session start time is 19:00 GMT. I will be a little late turning up for the practice, but I'll be there shortly after it starts :)
+
+[b]First official round[/b]
+Our first official event in the Undiecar Championship is coming up on Tuesday at 21:00 GMT. A practice session for it will start one hour beforehand. Qualifying will be a 15 minute long open session (everyone on track). There are two 30 minute back to back races so don't drop out once the first one is completed ;)
+
+We will be using the iRacing Road Medium setup.
+Race time will be set to afternoon.
+Weather will be randomly chosen by iRacing.
+Marbles will not be cleaned between sessions.
+
+[b]The apron[/b]
+Here is some information regarding the use of the apron at Daytona Road:
+https://undiecar.com/daytona-road-apron/
+
+[b]Discord[/b]
+If you want to chit chat about the race, check out the Undycar Discord channel:
+https://discord.gg/csjKs6z
+
+[b]Slight name change[/b]
+BTW, you may have noticed that the name of the championship changed slightly since you joined up ;) This was due to concerns over legal implications of mimicing the Indycar Series too closely. Undycar Series was easily mistaken as Indycar Series.
+
+
+
+
+
+
+
+
+
+-------------------------------	 UPCOMING PRACTICE -----------------------------------------
+Hi [NAME],
+There's a practice session on this [XXX] for the [XXX] round coming up on [XXXX] at XX:XX GMT. You will find it in the hosted races section of iRacing. Hopefully you can make it along :)
+
+
+-------------------------------	 REJECTED APPLICATION -----------------------------------------
+SUBJECT: Undiecar Championship application
+
+MESSGE:
+Hi [NAME],
+Thanks for signing up to the Undiecar Championship league. Unfortunately our main championship field is totally full at the moment, but you are welcome to sign up on our website and you will receive a private message whenever we have special events in which you are eligible to compete.
+
+You can register here:
+[url]https://undiecar.com/register/[/url]
+
+
+
+
+-------------------------------	 APOLOGY FOR MASS EMAIL SEND OUT -----------------------------------------
+Hi,
+It seems I made a mistake, as I grossly underestimated how many people would be interested in this league. It filled up pretty much as soon as I started contacting people to come join. So the league is now overflowing with drivers, but I recommend signing up anyway as there will be some special events held some times which will be open to everybody.
+
+The signup form is here:
+https://undiecar.com/register/
+
+
+
+-------------------------------	 ACCEPT LEAGUE INVITE -----------------------------------------
+SUBJECT: iRacing league invite
+Hi [NAME],
+You will need to accept the invite to join the Undiecar Championship on iRacing before the race tomorrow, as I'll be setting the race to only allow drivers officially signed up to the league on iRacing.
+
+You should see an invitation to join here:
+http://members.iracing.com/membersite/member/LeagueView.do?league=2466
+
+

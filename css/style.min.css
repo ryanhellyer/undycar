@@ -294,9 +294,9 @@ a img.aligncenter {
     body.home.page #featured-news h1 {
       font-size: 3rem;
       line-height: 1; }
-  body.error404 #featured-news, body.single #featured-news, body.archive #featured-news, body.blog #featured-news, body.page #featured-news {
+  body.error404 #featured-news, body.single #featured-news, body.search #featured-news, body.archive #featured-news, body.blog #featured-news, body.page #featured-news {
     height: 300px; }
-    body.error404 #featured-news h1, body.single #featured-news h1, body.archive #featured-news h1, body.blog #featured-news h1, body.page #featured-news h1 {
+    body.error404 #featured-news h1, body.single #featured-news h1, body.search #featured-news h1, body.archive #featured-news h1, body.blog #featured-news h1, body.page #featured-news h1 {
       font-size: 4rem;
       line-height: 4.5rem; }
   #featured-news .text {
@@ -880,6 +880,9 @@ input[type=submit],
 /* =Smaller devices
 -------------------------------------------------------------- */
 @media only screen and (max-width: 768px) {
+  #site-header h1 span {
+    display: none; }
+
   #base-content {
     width: 68%;
     overflow: scroll; }
@@ -920,9 +923,9 @@ input[type=submit],
     height: 40px; }
     #site-header h1 {
       border-left: 5px solid #e43146;
-      font-size: 33px;
-      background-size: 26%;
-      text-indent: 75px;
+      font-size: 38px;
+      background-size: 31%;
+      text-indent: 78px;
       height: 40px; }
     #site-header nav:before {
       font-size: 34px;

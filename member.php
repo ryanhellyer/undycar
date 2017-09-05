@@ -27,6 +27,8 @@ $facebook           = get_user_meta( $member_id, 'facebook', true );
 $youtube            = get_user_meta( $member_id, 'youtube', true );
 $avatar             = get_user_meta( $member_id, 'avatar', true );
 $header_image       = get_user_meta( $member_id, 'header_image', true );
+$season             = get_user_meta( $member_id, 'season', true );
+$custid             = get_user_meta( $member_id, 'custid', true );
 
 get_header();
 
@@ -79,6 +81,10 @@ if ( '' !== $first_racing_games ) {
 	$missing_data_count++;
 }
 
+if ( '' !== $custid ) {
+	echo '<strong>iRacing account:</strong> <a href="' . esc_url( 'http://members.iracing.com/membersite/member/CareerStats.do?custid=' . $custid ) . '">' . esc_html( $display_name ) . ' on iRacing</a><br />';
+}
+
 $social_network_counter = 0;
 $social_networks = '';
 if ( '' !== $twitter ) {
@@ -123,7 +129,7 @@ echo '</p>';
 if (
 	$member_id === get_current_user_id()
 	&&
-	'2' !== get_user_meta( $member_id, 'season', true )
+	'2' !== $season
 ) {
 	echo '<p><strong><u>Unfortunately all positions are now filled for season 2</u></strong>, but you have been placed on the reserve list and will be notified if any spots become availble or of any special events we may hold.</p>';
 }
@@ -145,12 +151,42 @@ if (
 	is_super_admin()
 ) {
 
+	if ( is_super_admin() ) {
+
+		$meta_keys = array(
+			'oval_irating',
+			'oval_license',
+			'oval_avg_inc',
+			'road_irating',
+			'road_license',
+			'road_avg_inc',
+			'custid',
+		);
+
+		echo '
+		<hr />
+		<p>
+			<strong>Super admin only data</strong><br /><small style="line-height:18px;display:block;">';
+		foreach ( $meta_keys as $meta_key ) {
+			echo $meta_key . ': ' . esc_html( get_user_meta( $member_id, $meta_key, true ) ) . '<br />';
+		}
+		echo '</small></p>';
+
+	}
+
 
 	echo '
 	<hr />
 
-	<form action="" method="POST" enctype="multipart/form-data">
+	<form action="" method="POST" enctype="multipart/form-data">';
 
+	if ( is_super_admin() ) {
+		echo '
+		<label>Season?</label>
+		<input name="season" type="text" value="' . esc_attr( $season ) . '" />';
+	}
+
+	echo '
 		<label>Email address</label>
 		<input name="email" type="email" value="' . esc_attr( $email ) . '" />
 

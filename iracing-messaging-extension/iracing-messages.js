@@ -57,7 +57,7 @@ if ( window.location.href === 'http://members.iracing.com/jforum/pm/send.page' )
 	setInterval( function () {
 
 		if ( '' != document.getElementsByName('toUsername' )[0].value ) {
-//			var submit_button = document.getElementById('btnSubmit').click();
+			var submit_button = document.getElementById('btnSubmit').click();
 		}
 
 	}, 1000);

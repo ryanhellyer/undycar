@@ -425,6 +425,7 @@ a img.aligncenter {
 
 	body.error404 &,
 	body.single &,
+	body.search &,
 	body.archive &,
 	body.blog &,
 	body.page & {
@@ -1288,6 +1289,11 @@ input[type=submit],
 
 @media only screen and (max-width: 768px) {
 
+	#site-header h1 span {
+		display: none;
+	}
+
+
 	#base-content {
 		width: 68%;
 		overflow: scroll;
@@ -1364,9 +1370,9 @@ input[type=submit],
 
 		h1 {
 			border-left: 5px solid #e43146;
-			font-size: 33px;
-			background-size: 26%;
-			text-indent: 75px;
+			font-size: 38px;
+			background-size: 31%;
+			text-indent: 78px;
 			height: $header_height_mobile;
 		}
 
